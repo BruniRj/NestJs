@@ -35,46 +35,41 @@ export class AuthService {
     }
   }
 
-
-  async signIn(AuthCredentialDto: AuthCredentialDto){
-    const {username} = AuthCredentialDto; 
-    const user = await this.UserRepository.findOne({where: {username}})
-    if(!user){
-        throw new UnauthorizedException("credential invalide pr eee");
-    }else{
-        // remarque kely oe ato isika no mretourner nleh user miaraka am JWT 
-        return user.username;
+  async signIn(AuthCredentialDto: AuthCredentialDto) {
+    const { username } = AuthCredentialDto;
+    const user = await this.UserRepository.findOne({ where: { username } });
+    if (!user) {
+      throw new UnauthorizedException('credential invalide pr eee');
+    } else {
+      // remarque kely oe ato isika no mretourner nleh user miaraka am JWT
+      return user.username;
     }
   }
-
-
 
   private hashPassword(password: string, salt: string): Promise<string> {
     return bcrypt.hash(password, salt);
   }
 
+  //   ito fonction eto ambany ito SignIn ian sady mande fa otran lava lotra
 
+  //   async signIn(AuthCredentialDto: AuthCredentialDto) {
+  //     const username = await this.ValidateUserPassword(AuthCredentialDto);
+  //     if (!username) {
+  //       throw new UnauthorizedException('Invalide credentials');
+  //     } else{
+  //         return username;
+  //     }
+  //   }
 
-//   ito fonction eto ambany ito SignIn ian sady mande fa otran lava lotra 
-
-//   async signIn(AuthCredentialDto: AuthCredentialDto) {
-//     const username = await this.ValidateUserPassword(AuthCredentialDto);
-//     if (!username) {
-//       throw new UnauthorizedException('Invalide credentials');
-//     } else{
-//         return username;
-//     }
-//   }
-
-//   async ValidateUserPassword(
-//     AuthCredentialDto: AuthCredentialDto,
-//   ): Promise<string> {
-//     const { username, password } = AuthCredentialDto;
-//     const user = await this.UserRepository.findOne({ where: { username } });
-//     if (user && (await user.validatePassword(password))) {
-//       return user.username;
-//     } else {
-//       return null;
-//     }
-//   }
+  //   async ValidateUserPassword(
+  //     AuthCredentialDto: AuthCredentialDto,
+  //   ): Promise<string> {
+  //     const { username, password } = AuthCredentialDto;
+  //     const user = await this.UserRepository.findOne({ where: { username } });
+  //     if (user && (await user.validatePassword(password))) {
+  //       return user.username;
+  //     } else {
+  //       return null;
+  //     }
+  //   }
 }
