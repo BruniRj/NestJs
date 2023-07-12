@@ -9,11 +9,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entity/auth.entity';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './jwt/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private UserRepository: Repository<User>,
+    private jwtService: JwtService,
   ) {}
 
   async createUser(AuthCredentialDto: AuthCredentialDto): Promise<User> {
@@ -30,19 +33,22 @@ export class AuthService {
         //Duplicate username
         throw new ConflictException('Username already exists');
       } else {
-        throw new InternalServerErrorException();
+        throw new InternalServerErrorException('error na serveur');
       }
     }
   }
 
-  async signIn(AuthCredentialDto: AuthCredentialDto) {
+  async signIn(AuthCredentialDto: AuthCredentialDto): Promise<{ accessToken: string }> {
     const { username } = AuthCredentialDto;
     const user = await this.UserRepository.findOne({ where: { username } });
     if (!user) {
-      throw new UnauthorizedException('credential invalide pr eee');
+      throw new UnauthorizedException('credential invalide ');
     } else {
       // remarque kely oe ato isika no mretourner nleh user miaraka am JWT
-      return user.username;
+      // return user.username;
+      const payload: JwtPayload = { username };
+      const accessToken = await this.jwtService.sign(payload);
+      return { accessToken };
     }
   }
 

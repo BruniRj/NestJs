@@ -5,6 +5,8 @@ import { Task } from './entity/task.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TaskStatus } from './task-status.enum';
+import { User } from 'src/auth/entity/auth.entity';
+import { GetUser } from 'src/auth/decorator/get-user.decorator';
 
 @Injectable()
 export class TasksService {
@@ -13,9 +15,14 @@ export class TasksService {
     private taskRepository: Repository<Task>,
   ) {}
 
-  async getTaskFilter(filterDto: GetTaskWithFilter): Promise<Task[]> {
+  async getTaskFilter(
+    filterDto: GetTaskWithFilter,
+    @GetUser() user: User,
+  ): Promise<Task[]> {
+
     const { search, status } = filterDto;
     const query = this.taskRepository.createQueryBuilder('task');
+    query.where('task.userId = :userId', { userId: user.id });
 
     if (status) {
       query.andWhere('(task.status = :status)', { status });
@@ -29,13 +36,20 @@ export class TasksService {
     const tasks = await query.getMany();
     return tasks;
   }
-  async createTask(CreateTaskDto: CreateTaskDto): Promise<Task> {
+  async createTask(
+    CreateTaskDto: CreateTaskDto,
+    @GetUser() user: User,
+  ): Promise<Task> {
+    console.log(user);
+
     const { title, description } = CreateTaskDto;
     const task = new Task();
     task.title = title;
     task.description = description;
     task.status = TaskStatus.OPEN;
+    task.user = user;
     await this.taskRepository.save(task);
+    delete task.user;
     return task;
   }
 
